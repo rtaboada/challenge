@@ -40,6 +40,15 @@
                (for [x (range 1 (inc v)) y (range 1 (inc v)) ]
                  (shortest-path g x y v)))))
 
+(defn closeness-centrality
+  "Returns the closeness of every vertex in the graph"
+  [dist]  
+  (map #(/ 1 (apply + %1)) dist))
 
+
+(defn initial-score [g]
+  (-> g
+      floyd-warshall
+      closeness-centrality))
 
 
