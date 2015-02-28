@@ -1,6 +1,7 @@
 (ns challenge.core
   (:require [clojure.string :as string]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [challenge.graph :as graph]))
 
 
 (defn read-file [file-name]
@@ -22,39 +23,13 @@
                    [0  0  5   0   0  9  0   18]
                    [0  0  0   0   0  4  18  0]]))
 
-(def shortest-path
-  (memoize 
-   (fn [g i j k]
-     (if (= i j)
-       0
-       (if (zero? k)
-         (get-in g [(dec i) (dec j)])
-         (min (shortest-path g i j (dec k))
-              (+ (shortest-path g i k (dec k))
-                 (shortest-path g k j (dec k)))))))))
-
-(defn floyd-warshall
-  "All pairs shortest path distance graph algorithm,
-   returns a distance matrix where the line and columns represent
-   the same vertices as the adjacency matrix."
-  [g]
-  (let [v (count g)]
-    (partition v v
-               (for [x (range 1 (inc v)) y (range 1 (inc v)) ]
-                 (shortest-path g x y v)))))
-
-(defn closeness-centrality
-  "Returns the closeness of every vertex in the graph"
-  [dist]  
-  (map #(/ 1 (apply + %1)) dist))
-
 
 (defn initial-score 
   "Returns a seq with the initial score of all vertices in the graph."
   [g]
   (-> g
-      floyd-warshall
-      closeness-centrality))
+      graph/floyd-warshall
+      graph/closeness-centrality))
 
 
 (defn factor 
