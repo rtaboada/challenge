@@ -52,3 +52,17 @@
       closeness-centrality))
 
 
+(defn factor 
+  "Coefficient that varies"
+  [k]
+  (rationalize (- 1 (Math/pow 1/2 k))))
+
+
+(defn fraudulent 
+  "Marks a vertex v as fraudulent, the vertex score will be zero and every other vertex's score will be changed by a factor dependent on their distance to the fraudulent vertex."
+  [score dist v]
+  (map * 
+       score 
+       (map factor (nth dist v))))
+
+
