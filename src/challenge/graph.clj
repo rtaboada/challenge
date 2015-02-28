@@ -1,4 +1,26 @@
-(ns challenge.graph)
+(ns challenge.graph
+  (:require [clojure.string :as string]))
+
+
+(defn lines [content]
+  (string/split content #"\n"))
+
+
+(defn read-file [file-name]
+  (map #(string/split %1 #" ")
+       (lines (slurp file-name))))
+
+
+(defn parse-edge [[v1 v2]]
+  [(Integer/parseInt v1) (Integer/parseInt v2)])
+
+
+(defn read-edge-file [file-name]
+  (map parse-edge (read-file file-name)))
+
+(defn create-adjacency-matrix [edges]
+  (let [vertices (sort (set (apply concat edges)))]
+    vertices))
 
 (def ^:private shortest-path
   (memoize

@@ -4,11 +4,6 @@
             [challenge.graph :as graph]))
 
 
-(defn read-file [file-name]
-  (map #(string/split %1 #" ")
-       (string/split (slurp file-name) #"\n")))
-
-
 (def g-test (mapv (fn [xs] 
                     (mapv #(if (zero? %1) 
                              1e10M 
