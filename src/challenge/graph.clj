@@ -2,16 +2,16 @@
   (:require [clojure.string :as string]))
 
 
-(defn lines [content]
+(defn- lines [content]
   (string/split content #"\n"))
 
 
-(defn read-file [file-name]
+(defn- read-file [file-name]
   (map #(string/split %1 #" ")
        (lines (slurp file-name))))
 
 
-(defn parse-edge [[v1 v2]]
+(defn- parse-edge [[v1 v2]]
   [(Integer/parseInt v1) (Integer/parseInt v2)])
 
 
@@ -19,8 +19,13 @@
   (map parse-edge (read-file file-name)))
 
 (defn create-adjacency-matrix [edges]
-  (let [vertices (sort (set (apply concat edges)))]
-    vertices))
+  (let [vertices (set (apply concat edges))
+        neighbors (group-by first edges)
+        empty-row (vec (repeat (count vertices) 1e10M))]
+    (mapv #(apply assoc empty-row (mapcat vector 
+                                          (map second (second %1))
+                                          (repeat 1)))
+         neighbors)))
 
 (def ^:private shortest-path
   (memoize
@@ -28,7 +33,7 @@
       (if (= i j)
         0
         (if (zero? k)
-          (get-in g [(dec i) (dec j)])
+          (get-in g [i j])
           (min (shortest-path g i j (dec k))
                (+ (shortest-path g i k (dec k))
                   (shortest-path g k j (dec k)))))))))
@@ -40,8 +45,8 @@
   [g]
   (let [v (count g)]
     (partition v v
-               (for [x (range 1 (inc v)) y (range 1 (inc v)) ]
-                 (shortest-path g x y v)))))
+               (for [x (range 0 v) y (range 0 v)]
+                 (shortest-path g x y (dec v))))))
 
 (defn closeness-centrality
   "Returns the closeness of every vertex in the graph, dist is a distance matrix.
