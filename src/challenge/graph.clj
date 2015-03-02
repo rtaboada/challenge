@@ -17,7 +17,9 @@
   [(Integer/parseInt v1) (Integer/parseInt v2)])
 
 
-(defn read-edge-file [file-name]
+(defn read-edge-file
+  "Reads an edge file from disk. "
+  [file-name]
   (map parse-edge (read-file file-name)))
 
 
@@ -27,8 +29,8 @@
   (sort (set (apply concat edges))))
 
 
-(defn create-adjacency-matrix 
-  "Creates an adjacency matrix given the edges of the graph. 
+(defn create-adjacency-matrix
+  "Creates an adjacency matrix given the edges of the graph.
    Some assumptions: - the graph is undirected.
                      - the ids are compact, ie. without holes.
                      - first id is zero and last id is (dec (count vertices))"
@@ -36,7 +38,7 @@
   (let [neighbors (sort (group-by first edges))
         empty-row (vec (repeat (count (vertices edges))
                                max-dist))]
-    (mapv #(apply assoc empty-row (mapcat vector 
+    (mapv #(apply assoc empty-row (mapcat vector
                                           (map second (second %1))
                                           (repeat 1)))
          neighbors)))

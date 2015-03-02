@@ -13,8 +13,8 @@
 
 (declare url-for)
 
-
 (defn home-page
+  "TODO: Shows links to other endpoints"
   [request]
   (ring-resp/response "Hello World!"))
 
@@ -29,13 +29,14 @@
 
 
 (defn list-edges
-  "List all edges."
+  "Lists all edges."
   [request]
   (-> (ring-resp/response @edges)
       (ring-resp/content-type "text/html")))
 
 
 (defn view-edge
+  "Shows edge info."
   [request]
   (let [v1 (get-in request [:path-params :v1])
         v2 (get-in request [:path-params :v2])]
@@ -46,11 +47,13 @@
 
 
 (defn delete-edge
+  "TODO: Removes edge from edges."
   [request]
   (ring-resp/response "deleted"))
 
 
 (defn list-vertices
+  "Show all vertices. TODO: Add link to vertex info."
   [request]
   (-> (ring-resp/response (graph/vertices @edges))
       (ring-resp/content-type "text/html")))
@@ -66,6 +69,7 @@
 
 
 (defn view-vertex
+  "TODO: Show vertex info."
   [request]
   (let [id (get-in request [:path-params :vertex-id])]
     (ring-resp/response (str "vertex info " id))))
