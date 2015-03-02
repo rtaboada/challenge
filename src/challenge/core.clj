@@ -1,26 +1,13 @@
 (ns challenge.core
-  (:require [challenge.graph :as graph]))
-
-
-(def g-test (mapv (fn [xs] 
-                    (mapv #(if (zero? %1) 
-                             1e10M 
-                             %1) 
-                          xs)) 
-                  [[0  8  15  9   0  0  0   0]
-                   [8  0  13  0   0  0  0   0]
-                   [15 13 0   0   6  0  5   0]
-                   [9  0  0   0  13  0  0   0]
-                   [0  0  6  13   0  7  0   0]
-                   [0  0  0   0   7  0  9   4]
-                   [0  0  5   0   0  9  0   18]
-                   [0  0  0   0   0  4  18  0]]))
+  (:require [clojure.string :as string]
+            [clojure.set :as set]
+            [challenge.graph :as graph]))
 
 
 (defn initial-score 
   "Returns a seq with the initial score of all vertices in the graph."
-  [g]
-  (-> g
+  [graph]
+  (-> graph
       graph/floyd-warshall
       graph/closeness-centrality))
 
@@ -42,3 +29,14 @@
        (map factor)
        (map * score)))
 
+
+(defn calculate-score
+  "Returns a seq with the current score of all vertices in the graph."
+  [edges fraudulents]
+  (let [graph (graph/create-adjacency-matrix edges)
+        dist (graph/floyd-warshall graph)
+        score (initial-score graph)]
+    (loop [score score fs fraudulents]
+      (if-not (seq fs)
+        score
+        (recur (fraudulent score dist (first fs)) (rest fs))))))
