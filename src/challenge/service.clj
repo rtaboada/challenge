@@ -4,9 +4,15 @@
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.http.route.definition :refer [defroutes]]
             [ring.util.response :as ring-resp]
-            [challenge.graph :as graph]))
+            [challenge.graph :as graph]
+            [challenge.core :as core]))
 
-(defonce edges (atom []))
+
+(defonce edges (atom #{}))
+(defonce fraudulents (atom #{}))
+
+(declare url-for)
+
 
 (defn home-page
   [request]
@@ -31,7 +37,12 @@
 
 (defn view-edge
   [request]
-  (ring-resp/response "edge"))
+  (let [v1 (get-in request [:path-params :v1])
+        v2 (get-in request [:path-params :v2])]
+    (ring-resp/response 
+     (str (url-for ::view-vertex :params {:vertex-id v1}) 
+          "\n"
+          (url-for ::view-vertex :params {:vertex-id v2})))))
 
 
 (defn delete-edge
@@ -48,7 +59,10 @@
 (defn vertices-score
   "Returns the rank of vertices by closeness centrality."
   [request]
-  (ring-resp/response "rank by centrality"))
+  (let [score (core/calculate-score @edges @fraudulents)
+        score-with-id (map vector (range) score)]
+    (-> (ring-resp/response (reverse (sort-by second score-with-id)))
+        (ring-resp/content-type "text/html"))))
 
 
 (defn view-vertex
@@ -60,7 +74,9 @@
 (defn flag-fraudulent
   "Marks a vector as fraudulent."
   [request]
-  (ring-resp/response "fraudulent vertex."))
+  (let [vertex-id (get-in request [:path-params :vertex-id])]
+    (swap! fraudulents conj (Integer/parseInt vertex-id))
+    (ring-resp/response (str "Vertex " vertex-id " flagged as fraudulent."))))
 
 
 (defroutes routes
@@ -79,7 +95,6 @@
        ^:constraints {:vertex-id #"\d+"}
        {:get view-vertex}
        ["/fraudulent" {:put flag-fraudulent}]]]]]])
-
 
 (def url-for (route/url-for-routes routes))
 
