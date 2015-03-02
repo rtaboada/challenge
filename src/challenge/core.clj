@@ -1,7 +1,5 @@
 (ns challenge.core
-  (:require [clojure.string :as string]
-            [clojure.set :as set]
-            [challenge.graph :as graph]))
+  (:require [challenge.graph :as graph]))
 
 
 (def g-test (mapv (fn [xs] 

@@ -2,6 +2,8 @@
   (:require [clojure.string :as string]))
 
 
+(def max-dist 1e10M)
+
 (defn- lines [content]
   (string/split content #"\n"))
 
@@ -18,10 +20,15 @@
 (defn read-edge-file [file-name]
   (map parse-edge (read-file file-name)))
 
+(defn vertices
+  "Return the set of vertices defined by edges."
+  [edges]
+  (set (apply concat edges)))
+
 (defn create-adjacency-matrix [edges]
-  (let [vertices (set (apply concat edges))
-        neighbors (group-by first edges)
-        empty-row (vec (repeat (count vertices) 1e10M))]
+  (let [neighbors (group-by first edges)
+        empty-row (vec (repeat (count (vertices edges))
+                               max-dist))]
     (mapv #(apply assoc empty-row (mapcat vector 
                                           (map second (second %1))
                                           (repeat 1)))
