@@ -2,7 +2,7 @@
   (:require [clojure.string :as string]))
 
 
-(def max-dist 1e10N)
+(def max-dist 1e10M)
 
 (defn- lines [content]
   (string/split content #"\n"))
