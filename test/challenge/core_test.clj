@@ -18,28 +18,52 @@
       (is (= (calculate-score edges [])
              (initial-score (graph/create-adjacency-matrix edges)))))))
 
+
+;; Generator for the number of vertices of a graph.
+(def num-vertex (graph-test/int-greater-1))
+
+
+;; Checks if initial-score is equals to the score calculated by 
+;; calculate-score, when no vertex is flagged as fraudulent.
 (defspec calculate-score-equals-initial-score-if-fraudulent-is-empty
   50
   (prop/for-all 
-   [edges (gen/fmap graph-test/complete-graph-edges
-                    (graph-test/int-greater-1))]
+   [edges (gen/fmap graph-test/complete-graph-edges num-vertex)]
    (= (calculate-score edges [])
       (initial-score (graph/create-adjacency-matrix edges)))))
 
 
+;; Checks if initial-score is different of the score returned by
+;; calculate-score, when some vertex is flagged as fraudulent.
+(defspec calculate-score-should-change-initial-score-when-fraudulent-is-not-empty
+  50
+  (prop/for-all
+   [fvertex-and-edges (gen/bind num-vertex 
+                                 (fn [n] 
+                                   (gen/tuple (gen/choose 0 (dec n)) 
+                                              (gen/return (graph-test/complete-graph-edges n)))))]
+   (let [[flagged-vertex edges] fvertex-and-edges]
+     (not= (calculate-score edges [flagged-vertex])
+           (initial-score (graph/create-adjacency-matrix edges))))))
+
+
+;; Simple test that checks some values return by challenge.core/factor.
 (deftest factor-returns-correct-value
-  (is (= (factor 1) 1/2))
+  (is (= (factor 1) 1/2) "According to the problem spec, factor of 1 (immediate neighbors) should be 1/2")
   (is (= (factor 2) 3/4))
   (is (= (factor 3) 7/8))
   (is (= (factor 10) 1023/1024)))
 
 
 (defn ascending?
+  "Returns true if coll is in non-descending order."
   [coll]
   (every? (fn [[a b]] (<= a b))
           (partition 2 1 coll)))
 
 
+;; Checks if factor keeps the invariant of always returning 
+;; a bigger scaling factor when the distance k increases.
 (defspec factor-scaling-is-ascending
   (prop/for-all 
    [v (gen/vector gen/pos-int)]
