@@ -11,6 +11,13 @@ This formula makes the algorithm a good candidate for using a technique called [
 
 I keep the state of the application in two `atom`s, the edges `atom` keeps a `set` of edges that are currently in the graph, and the fraudulents `atom` keeps a `set` of all vertices that are flagged as fraudulents. The `calculate-score` function uses this two `atoms` to calculate the current score of the vertices in the graph. Because of the use of memoization there is no need to have a separated score `atom`. There are some downsides: every client see the same graph, the graphs are not durable (i.e. they vanish when the server terminates). I select this implementation only because of its simplicity, if that is unacceptable I will gladly change the code and use Datomic to save the graphs.
 
+#### Assumptions: 
+
+- The graph is connected.
+- The vertex id is always an `Integer`.
+- The first vertex id is zero and the last vertex id is `(dec (count (vertices)))`.
+- The ids are compact, i.e. without holes.
+
 ### Libraries used:
 
 - [Pedestal](https://github.com/pedestal/pedestal): Used to implement the [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer) web server
@@ -27,8 +34,8 @@ I keep the state of the application in two `atom`s, the edges `atom` keeps a `se
 |----------|----------------|-------------|
 | GET | /edge        |   Returns a list all edges in the graph. |
 | POST | /edge | Creates a new edge, expects `vertex1` and `vertex2` as the id (an int) of the vertices. And accepts an optional parameter `undirected` that when true makes an undirected edge, the default is `false`. |
-| GET | /edge/\<v1\>/\<v2\> | Retrieves information about the edge. |
-| DELETE | /edge/\<v1\>/\<v2\> | Deletes the edge from the graph. |
+| GET | /edge/\<id1\>/\<id2\> | Retrieves information about the edge. |
+| DELETE | /edge/\<id1\>/\<id2\> | Deletes the edge from the graph. |
 | GET | /vertex | Returns a list of all vertices. |
 | GET | /vertex/score   | Returns the current score of every vertex, sorted from the highest to lowest score. |
 | GET | /vertex/\<id\>   | Returns information about the vertex with vertex-id. |
