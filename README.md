@@ -5,7 +5,8 @@ The problem is to find the score of every vertex in a graph. The initial score i
 To calculate the _Closeness Centrality_ we need to solve the [shortest path problem](http://en.wikipedia.org/wiki/Shortest_path_problem) for the graph. The algorithm I choose to resolve the problem was the [Floyd-Warshall](http://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm) algorithm. This algorithm can handle both positive and negative weights and is kind of easy to express in a functional language because of the recurrence formula:
 
     shortestPath(i, j, 0) = w(i, j)
-    shortestPath(i, j, k+1) = min(shortestPath(i, j, k), shortestPath(i, k+1, k) + shortestPath(k+1, j, k)) 
+    shortestPath(i, j, k+1) = min(shortestPath(i, j, k), 
+                                  shortestPath(i, k+1, k) + shortestPath(k+1, j, k)) 
 
 This formula makes the algorithm a good candidate for using a technique called [memoization](http://en.wikipedia.org/wiki/Memoization). In Clojure you need only to wrap your function with the [`memoize`](https://clojuredocs.org/clojure.core/memoize) function and the result of every call to your original function will be saved. There is also a library [core.memoize](https://github.com/clojure/core.memoize) that gives a lot more control over the cache of results but I didn't explored it further.
 
