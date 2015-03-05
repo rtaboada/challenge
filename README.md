@@ -35,12 +35,12 @@ I keep the state of the application in two `atom`s, the edges `atom` keeps a `se
 |----------|----------------|-------------|
 | GET | /edge        |   Returns a list all edges in the graph. |
 | POST | /edge | Creates a new edge, expects `vertex1` and `vertex2` as the id (an int) of the vertices. And accepts an optional parameter `undirected` that when true makes an undirected edge, the default is `false`. |
-| GET | /edge/\<id1\>/\<id2\> | Retrieves information about the edge. |
-| DELETE | /edge/\<id1\>/\<id2\> | Deletes the edge from the graph. |
+| GET | /edge/:id1/:id2 | Retrieves information about the edge. |
+| DELETE | /edge/:id1/:id2 | Deletes the edge from the graph. |
 | GET | /vertex | Returns a list of all vertices. |
 | GET | /vertex/score   | Returns the current score of every vertex, sorted from the highest to lowest score. |
-| GET | /vertex/\<id\>   | Returns information about the vertex with vertex-id. |
-| PUT | /vertex/\<id\>/fraudulent      | Flags a vertex as fraudulent. |
+| GET | /vertex/:id   | Returns information about the vertex with vertex-id. |
+| PUT | /vertex/:id/fraudulent      | Flags a vertex as fraudulent. |
 
 
 ## License
