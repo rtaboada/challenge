@@ -32,8 +32,8 @@
 (defn create-adjacency-matrix
   "Creates an adjacency matrix given the edges of the graph.
    Some assumptions: - the graph is undirected.
-                     - the ids are compact, ie. without holes.
-                     - first id is zero and last id is (dec (count vertices))"
+                     - the ids are compact, i.e without holes.
+                     - first id is zero and last id is (dec (count (vertices)))"
   [edges]
   (let [neighbors (sort (group-by first edges))
         empty-row (vec (repeat (count (vertices edges))

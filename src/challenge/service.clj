@@ -22,9 +22,14 @@
 (defn create-edge
   "Adds edge to graph."
   [request]
-  (let [v1 (Integer/parseInt (get-in request [:form-params "vertex1"]))
-        v2 (Integer/parseInt (get-in request [:form-params "vertex2"]))]
-    (swap! edges conj [v1 v2])
+  (let [parse-vertex (fn [param-name] 
+                       (Integer/parseInt (get-in request [:form-params param-name])))
+        v1 (parse-vertex "vertex1")
+        v2 (parse-vertex "vertex2")
+        undirected? (get-in request [:form-params "undirected"] false)]
+    (swap! edges conj [v1 v2]) 
+    (when undirected?
+      (swap! edges conj [v2 v1]))
     (ring-resp/response (url-for ::view-edge :params {:v1 v1 :v2 v2}))))
 
 
@@ -49,7 +54,7 @@
 (defn delete-edge
   "TODO: Removes edge from edges."
   [request]
-  (ring-resp/response "deleted"))
+  (ring-resp/response "TODO!"))
 
 
 (defn list-vertices
