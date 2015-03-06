@@ -13,31 +13,27 @@
 
 (declare url-for)
 
-(defn home-page
-  "TODO: Shows links to other endpoints"
-  [request]
-  (ring-resp/response "Hello World!"))
+
+(defn parse-int [request path]
+  (Integer/parseInt (get-in request path)))
 
 
 (defn create-edge
   "Adds edge to graph."
   [request]
-  (let [parse-vertex (fn [param-name] 
-                       (Integer/parseInt (get-in request [:form-params param-name])))
-        v1 (parse-vertex "vertex1")
-        v2 (parse-vertex "vertex2")
+  (let [v1 (parse-int request [:form-params "vertex1"])
+        v2 (parse-int request [:form-params "vertex2"])
         undirected? (get-in request [:form-params "undirected"] false)]
     (swap! edges conj [v1 v2]) 
     (when undirected?
       (swap! edges conj [v2 v1]))
-    (ring-resp/response (url-for ::view-edge :params {:v1 v1 :v2 v2}))))
+    (ring-resp/created (url-for ::view-edge :params {:v1 v1 :v2 v2}))))
 
 
 (defn list-edges
   "Lists all edges."
   [request]
-  (-> (ring-resp/response @edges)
-      (ring-resp/content-type "text/html")))
+  (ring-resp/response @edges))
 
 
 (defn view-edge
@@ -52,16 +48,19 @@
 
 
 (defn delete-edge
-  "TODO: Removes edge from edges."
+  "Removes edge from graph."
   [request]
-  (ring-resp/response "TODO!"))
+  (let [v1 (parse-int request [:path-params :v1])
+        v2 (parse-int request [:path-params :v2])]    
+    (swap! edges disj [v1 v2])
+    (-> (ring-resp/response "")
+        (ring-resp/status 204))))
 
 
 (defn list-vertices
   "Show all vertices. TODO: Add link to vertex info."
   [request]
-  (-> (ring-resp/response (graph/vertices @edges))
-      (ring-resp/content-type "text/html")))
+  (ring-resp/response (graph/vertices @edges)))
 
 
 (defn vertices-score
@@ -83,13 +82,14 @@
 (defn flag-fraudulent
   "Marks a vector as fraudulent."
   [request]
-  (let [vertex-id (get-in request [:path-params :vertex-id])]
-    (swap! fraudulents conj (Integer/parseInt vertex-id))
-    (ring-resp/response (str "Vertex " vertex-id " flagged as fraudulent."))))
+  (let [vertex-id (parse-int request [:path-params :vertex-id])]
+    (swap! fraudulents conj vertex-id)
+    (-> (ring-resp/response "")
+        (ring-resp/status 204))))
 
 
 (defroutes routes
-  [[["/" {:get home-page}
+  [[["/" 
      ;; Set default interceptors for any path under /    
      ^:interceptors [(body-params/body-params) bootstrap/html-body]
      ["/edge" {:get list-edges
