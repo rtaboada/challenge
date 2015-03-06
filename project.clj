@@ -1,5 +1,5 @@
 (defproject challenge "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "Programming Challenge"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -9,6 +9,7 @@
                  [io.pedestal/pedestal.jetty "0.3.1"]]
 
   :min-lein-version "2.0.0"
+  :plugins [[lein-marginalia "0.8.0"]]
   :resource-paths ["config" "resources"]
   :profiles {:dev {:aliases {"run-dev" ["trampoline" "run" "-m" "challenge.server/run-dev"]}
                    :dependencies [[io.pedestal/pedestal.service-tools "0.3.1"]]}}
