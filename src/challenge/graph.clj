@@ -70,5 +70,5 @@
   "Returns the closeness of every vertex in the graph, dist is a distance matrix.
    Return a seq with the closeness of every vertex in the graph."
   [dist]  
-  (map #(/ 1 (apply + %1)) dist))
+  (map #(/ (apply + %1)) dist))
 
