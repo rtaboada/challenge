@@ -16,7 +16,7 @@
   "Scaling factor applied to a vertex score,
    k is the distance between the fraudulent vertex and the other vertex."
   [k]
-  (rationalize (- 1 (Math/pow 1/2 k))))
+  (- 1 (Math/pow 1/2 k)))
 
 
 (defn fraudulent 

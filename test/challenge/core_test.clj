@@ -49,10 +49,10 @@
 
 ;; Simple test that checks some values return by challenge.core/factor.
 (deftest factor-returns-correct-value
-  (is (= (factor 1) 1/2) "According to the problem spec, factor of 1 (immediate neighbors) should be 1/2")
-  (is (= (factor 2) 3/4))
-  (is (= (factor 3) 7/8))
-  (is (= (factor 10) 1023/1024)))
+  (is (= (factor 1) 0.5) "Factor of 1 (immediate neighbors) should be 1/2")
+  (is (= (factor 2) 0.75))
+  (is (= (factor 3) 0.875))
+  (is (= (factor 10) 0.9990234375)))
 
 
 (defn ascending?
