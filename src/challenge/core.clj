@@ -40,3 +40,13 @@
       (if-not (seq fs)
         score
         (recur (fraudulent score dist (first fs)) (rest fs))))))
+
+
+(defn score
+  "Returns a seq with a tuple of the form [vertex-id score] sorted by score."
+  [edges fraudulents]
+  (->> (calculate-score edges fraudulents)
+       (map vector (range))
+       (sort-by second)
+       (reverse)))
+

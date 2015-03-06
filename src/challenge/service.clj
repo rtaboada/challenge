@@ -8,18 +8,23 @@
             [challenge.core :as core]))
 
 
+;; Edges is an atom that keeps the set that contains the graph represented as a set of edges.
 (defonce edges (atom #{}))
+;; Fraudulents keeps the set of vertices that are currently flagged as fraudulent.
 (defonce fraudulents (atom #{}))
 
 (declare url-for)
 
 
-(defn parse-int [request path]
+(defn parse-int 
+  "Gets an item in the request path. And parse it to int."
+  [request path]
   (Integer/parseInt (get-in request path)))
 
 
 (defn create-edge
-  "Adds edge to graph."
+  "Adds edge to graph. Expects two form params: 'vertex1' and 'vertex2'. 
+  Can also receive a 'undirected' parameter that if truthy will create an undirected edge. "
   [request]
   (let [v1 (parse-int request [:form-params "vertex1"])
         v2 (parse-int request [:form-params "vertex2"])
@@ -31,7 +36,7 @@
 
 
 (defn list-edges
-  "Lists all edges."
+  "Lists all edges currently on the graph."
   [request]
   (ring-resp/response @edges))
 
@@ -48,7 +53,7 @@
 
 
 (defn delete-edge
-  "Removes edge from graph."
+  "Removes edge from graph. Expects two path params: v1 and v2"
   [request]
   (let [v1 (parse-int request [:path-params :v1])
         v2 (parse-int request [:path-params :v2])]    
@@ -65,11 +70,8 @@
 
 (defn vertices-score
   "Returns the rank of vertices by closeness centrality."
-  [request]
-  (let [score (core/calculate-score @edges @fraudulents)
-        score-with-id (map vector (range) score)]
-    (-> (ring-resp/response (reverse (sort-by second score-with-id)))
-        (ring-resp/content-type "text/html"))))
+  [request]  
+  (ring-resp/response (core/score @edges @fraudulents)))
 
 
 (defn view-vertex

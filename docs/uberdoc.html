@@ -2896,7 +2896,13 @@ net.brehaut.ClojureTools = (function (SH) {
     (loop [score score fs fraudulents]
       (if-not (seq fs)
         score
-        (recur (fraudulent score dist (first fs)) (rest fs))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph" name="challenge.graph"><h1 class="project-name">challenge.graph</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+        (recur (fraudulent score dist (first fs)) (rest fs))))))</pre></td></tr><tr><td class="docs"><p>Returns a seq with a tuple of the form [vertex-id score] sorted by score.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn score
+  [edges fraudulents]
+  (-&gt;&gt; (calculate-score edges fraudulents)
+       (map vector (range))
+       (sort-by second)
+       (reverse)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph" name="challenge.graph"><h1 class="project-name">challenge.graph</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns challenge.graph
   (:require [clojure.string :as string]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def max-dist 1e10M)</pre></td></tr><tr><td class="docs">
@@ -2946,7 +2952,7 @@ net.brehaut.ClojureTools = (function (SH) {
    Return a seq with the closeness of every vertex in the graph.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn closeness-centrality
   [dist]  
-  (map #(/ 1 (apply + %1)) dist))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.server" name="challenge.server"><h1 class="project-name">challenge.server</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+  (map #(/ (apply + %1)) dist))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.server" name="challenge.server"><h1 class="project-name">challenge.server</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns challenge.server
   (:gen-class) ; for -main method in uberjar
   (:require [io.pedestal.http :as server]
@@ -2981,28 +2987,26 @@ From the REPL you can call server/start and server/stop on this service</p>
             [io.pedestal.http.route.definition :refer [defroutes]]
             [ring.util.response :as ring-resp]
             [challenge.graph :as graph]
-            [challenge.core :as core]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defonce edges (atom #{}))
-(defonce fraudulents (atom #{}))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(declare url-for)</pre></td></tr><tr><td class="docs"><p>TODO: Shows links to other endpoints</p>
-</td><td class="codes"><pre class="brush: clojure">(defn home-page
-  [request]
-  (ring-resp/response &quot;Hello World!&quot;))</pre></td></tr><tr><td class="docs"><p>Adds edge to graph.</p>
+            [challenge.core :as core]))</pre></td></tr><tr><td class="docs"><p>Edges is an atom that keeps the set that contains the graph represented as a set of edges.</p>
+</td><td class="codes"><pre class="brush: clojure">(defonce edges (atom #{}))</pre></td></tr><tr><td class="docs"><p>Fraudulents keeps the set of vertices that are currently flagged as fraudulent.</p>
+</td><td class="codes"><pre class="brush: clojure">(defonce fraudulents (atom #{}))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(declare url-for)</pre></td></tr><tr><td class="docs"><p>Gets an item in the request path. And parse it to int.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn parse-int 
+  [request path]
+  (Integer/parseInt (get-in request path)))</pre></td></tr><tr><td class="docs"><p>Adds edge to graph. Expects two form params: 'vertex1' and 'vertex2'. 
+  Can also receive a 'undirected' parameter that if truthy will create an undirected edge. </p>
 </td><td class="codes"><pre class="brush: clojure">(defn create-edge
   [request]
-  (let [parse-vertex (fn [param-name] 
-                       (Integer/parseInt (get-in request [:form-params param-name])))
-        v1 (parse-vertex &quot;vertex1&quot;)
-        v2 (parse-vertex &quot;vertex2&quot;)
+  (let [v1 (parse-int request [:form-params &quot;vertex1&quot;])
+        v2 (parse-int request [:form-params &quot;vertex2&quot;])
         undirected? (get-in request [:form-params &quot;undirected&quot;] false)]
     (swap! edges conj [v1 v2]) 
     (when undirected?
       (swap! edges conj [v2 v1]))
-    (ring-resp/response (url-for ::view-edge :params {:v1 v1 :v2 v2}))))</pre></td></tr><tr><td class="docs"><p>Lists all edges.</p>
+    (ring-resp/created (url-for ::view-edge :params {:v1 v1 :v2 v2}))))</pre></td></tr><tr><td class="docs"><p>Lists all edges currently on the graph.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn list-edges
   [request]
-  (-&gt; (ring-resp/response @edges)
-      (ring-resp/content-type &quot;text/html&quot;)))</pre></td></tr><tr><td class="docs"><p>Shows edge info.</p>
+  (ring-resp/response @edges))</pre></td></tr><tr><td class="docs"><p>Shows edge info.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn view-edge
   [request]
   (let [v1 (get-in request [:path-params :v1])
@@ -3010,31 +3014,32 @@ From the REPL you can call server/start and server/stop on this service</p>
     (ring-resp/response 
      (str (url-for ::view-vertex :params {:vertex-id v1}) 
           &quot;\n&quot;
-          (url-for ::view-vertex :params {:vertex-id v2})))))</pre></td></tr><tr><td class="docs"><p>TODO: Removes edge from edges.</p>
+          (url-for ::view-vertex :params {:vertex-id v2})))))</pre></td></tr><tr><td class="docs"><p>Removes edge from graph. Expects two path params: v1 and v2</p>
 </td><td class="codes"><pre class="brush: clojure">(defn delete-edge
   [request]
-  (ring-resp/response &quot;TODO!&quot;))</pre></td></tr><tr><td class="docs"><p>Show all vertices. TODO: Add link to vertex info.</p>
+  (let [v1 (parse-int request [:path-params :v1])
+        v2 (parse-int request [:path-params :v2])]    
+    (swap! edges disj [v1 v2])
+    (-&gt; (ring-resp/response &quot;&quot;)
+        (ring-resp/status 204))))</pre></td></tr><tr><td class="docs"><p>Show all vertices. TODO: Add link to vertex info.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn list-vertices
   [request]
-  (-&gt; (ring-resp/response (graph/vertices @edges))
-      (ring-resp/content-type &quot;text/html&quot;)))</pre></td></tr><tr><td class="docs"><p>Returns the rank of vertices by closeness centrality.</p>
+  (ring-resp/response (graph/vertices @edges)))</pre></td></tr><tr><td class="docs"><p>Returns the rank of vertices by closeness centrality.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn vertices-score
-  [request]
-  (let [score (core/calculate-score @edges @fraudulents)
-        score-with-id (map vector (range) score)]
-    (-&gt; (ring-resp/response (reverse (sort-by second score-with-id)))
-        (ring-resp/content-type &quot;text/html&quot;))))</pre></td></tr><tr><td class="docs"><p>TODO: Show vertex info.</p>
+  [request]  
+  (ring-resp/response (core/score @edges @fraudulents)))</pre></td></tr><tr><td class="docs"><p>TODO: Show vertex info.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn view-vertex
   [request]
   (let [id (get-in request [:path-params :vertex-id])]
     (ring-resp/response (str &quot;vertex info &quot; id))))</pre></td></tr><tr><td class="docs"><p>Marks a vector as fraudulent.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn flag-fraudulent
   [request]
-  (let [vertex-id (get-in request [:path-params :vertex-id])]
-    (swap! fraudulents conj (Integer/parseInt vertex-id))
-    (ring-resp/response (str &quot;Vertex &quot; vertex-id &quot; flagged as fraudulent.&quot;))))</pre></td></tr><tr><td class="docs">
+  (let [vertex-id (parse-int request [:path-params :vertex-id])]
+    (swap! fraudulents conj vertex-id)
+    (-&gt; (ring-resp/response &quot;&quot;)
+        (ring-resp/status 204))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defroutes routes
-  [[[&quot;/&quot; {:get home-page}
+  [[[&quot;/&quot; 
      ;; Set default interceptors for any path under /    
      ^:interceptors [(body-params/body-params) bootstrap/html-body]
      [&quot;/edge&quot; {:get list-edges
