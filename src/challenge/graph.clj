@@ -2,7 +2,7 @@
   (:require [clojure.string :as string]))
 
 
-(def max-dist 1e10M)
+(def max-dist Double/POSITIVE_INFINITY)
 
 (defn- lines [content]
   (string/split content #"\n"))
@@ -70,5 +70,5 @@
   "Returns the closeness of every vertex in the graph, dist is a distance matrix.
    Return a seq with the closeness of every vertex in the graph."
   [dist]  
-  (map #(/ (apply + %1)) dist))
+  (map #(/ 1. (apply + %1)) dist))
 
