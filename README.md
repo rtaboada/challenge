@@ -28,6 +28,15 @@ I keep the state of the application in two `atom`s, the edges `atom` keeps a `se
 
 - To run the server: in the project directory `lein run` starts the Pedestal server.
 - Use `lein test` in the project directory to run all unit and property-based tests.
+- To calculate the score of the example file start a REPL with `lein repl` and then input the following commands:  
+      
+
+        (use 'challenge.graph)
+        ; nil
+        (use 'challenge.core)
+        ; nil
+        (score (read-edge-file "edges") [])
+        ; ([44 0.005208333333333333] [88 0.005050505050505051] [20 0.005050505050505051] [74 0.005025125628140704] ...
 
 ### Endpoints
 
