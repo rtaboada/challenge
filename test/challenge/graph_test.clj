@@ -39,6 +39,7 @@
           (line-graph n)))
 
 (deftest ring-graph-generation-test
+  (testing "Ring graph with 9 vertices.")
   (let [graph (ring-graph 9)]
     (is (= graph
            [[0 1] [1 0] [1 2] [2 1] [2 3] [3 2] [4 3] [3 4] [4 5] [5 4] [5 6] [6 5] [6 7] [7 6] [7 8] [8 7] [8 0] [0 8]]))
@@ -51,10 +52,11 @@
   (mapcat create-undirected-edge (repeat 0) (range 1 n)))
 
 (deftest star-graph-generation-test
-  (let [graph (star-graph 8)]
-    (is (= graph
-           [[0 1] [1 0] [0 2] [2 0] [0 3] [3 0] [0 4] [4 0] [0 5] [5 0] [6 0] [0 6] [7 0] [0 7]]))
-    (is (= (vertices graph) 8))))
+  (testing "Star graph with 8 vertices" 
+    (let [graph (star-graph 8)]
+      (is (= graph
+             [[0 1] [1 0] [0 2] [2 0] [0 3] [3 0] [0 4] [4 0] [0 5] [5 0] [6 0] [0 6] [7 0] [0 7]]))
+      (is (= (vertices graph) 8)))))
 
 
 (defn line-graph
@@ -63,10 +65,11 @@
   (mapcat create-undirected-edge (range n) (range 1 n)))
 
 (deftest line-graph-test
-  (let [graph (line-graph 5)]
-    (is (= graph
-           [[0 1] [1 0] [1 2] [2 1] [2 3] [3 2] [3 4] [4 3]]))
-    (is (= (vertices graph) 5))))
+  (testing "Line graph with 5 vertices"
+    (let [graph (line-graph 5)]
+      (is (= graph
+             [[0 1] [1 0] [1 2] [2 1] [2 3] [3 2] [3 4] [4 3]]))
+      (is (= (vertices graph) 5)))))
 
 
 ;; Check if the number of vertices is the one expected for a complete graph.
