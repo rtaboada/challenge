@@ -33,7 +33,7 @@
 (defn calculate-score
   "Returns a seq with the current score of all vertices in the graph."
   [edges fraudulents]
-  (let [graph (graph/create-adjacency-matrix edges)
+  (let [graph (graph/adjacency-matrix edges)
         dist (graph/floyd-warshall graph)
         score (initial-score graph)]
     (loop [score score fs fraudulents]

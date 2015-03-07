@@ -29,8 +29,8 @@
   (sort (set (apply concat edges))))
 
 
-(defn create-adjacency-matrix
-  "Creates an adjacency matrix given the edges of the graph.
+(defn adjacency-matrix
+  "Return the adjacency matrix given the edges of the graph.
    Some assumptions: - the graph is undirected.
                      - the ids are compact, i.e without holes.
                      - first id is zero and last id is (dec (count (vertices)))"

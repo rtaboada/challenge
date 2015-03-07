@@ -12,11 +12,11 @@
   (testing "Small graph."
     (let [edges [[0 1] [0 2] [1 0] [1 3] [2 0] [3 1]]]
       (is (= (calculate-score edges [])
-             (initial-score (graph/create-adjacency-matrix edges))))))
+             (initial-score (graph/adjacency-matrix edges))))))
   (testing "File graph."
     (let [edges (graph/read-edge-file "edges")]
       (is (= (calculate-score edges [])
-             (initial-score (graph/create-adjacency-matrix edges)))))))
+             (initial-score (graph/adjacency-matrix edges)))))))
 
 
 ;; Generator for the number of vertices of a graph.
@@ -30,7 +30,7 @@
   (prop/for-all 
    [edges (gen/fmap graph-test/complete-graph-edges num-vertex)]
    (= (calculate-score edges [])
-      (initial-score (graph/create-adjacency-matrix edges)))))
+      (initial-score (graph/adjacency-matrix edges)))))
 
 
 ;; Checks if initial-score is different of the score returned by
@@ -44,7 +44,7 @@
                                               (gen/return (graph-test/complete-graph-edges n)))))]
    (let [[flagged-vertex edges] fvertex-and-edges]
      (not= (calculate-score edges [flagged-vertex])
-           (initial-score (graph/create-adjacency-matrix edges))))))
+           (initial-score (graph/adjacency-matrix edges))))))
 
 
 ;; Simple test that checks some values return by challenge.core/factor.
