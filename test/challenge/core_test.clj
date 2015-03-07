@@ -55,11 +55,8 @@
   (is (= (factor 10) 0.9990234375)))
 
 
-(defn ascending?
-  "Returns true if coll is in non-descending order."
-  [coll]
-  (every? (fn [[a b]] (<= a b))
-          (partition 2 1 coll)))
+;; Returns true if coll is in non-descending order.
+(def ascending? (partial graph-test/ordered-coll <=))
 
 
 ;; Checks if factor keeps the invariant of always returning 
