@@ -1,7 +1,8 @@
 (ns challenge.graph-generators
   (:require [clojure.test.check.generators :as gen]))
 
-;; Helpers functions that generate a seq of edges on a graph in certain layout.
+;; ## Helpers ##
+;; Functions that generate a seq of edges on a graph with certain layout.
 
  
 (defn complete-graph-fn
@@ -36,7 +37,7 @@
   (mapcat create-undirected-edge (repeat 0) (range 1 n)))
 
 
-;; Generators
+;; ## Generators ##
 
 ;; Generator for the number of vertices of a graph. 
 ;; Always greater than 1.
@@ -53,4 +54,12 @@
 
 ;; Generator for a star graph.
 (def star-graph (gen/fmap star-graph-fn num-vertex))
+
+;; Generator that chooses one of the graph layouts:
+;;
+;; - Complete
+;; - Line
+;; - Ring
+;; - Star
+(def graph (gen/one-of [complete-graph line-graph ring-graph star-graph]))
 
