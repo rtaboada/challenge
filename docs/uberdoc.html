@@ -2890,7 +2890,7 @@ net.brehaut.ClojureTools = (function (SH) {
        (map * score)))</pre></td></tr><tr><td class="docs"><p>Returns a seq with the current score of all vertices in the graph.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn calculate-score
   [edges fraudulents]
-  (let [graph (graph/create-adjacency-matrix edges)
+  (let [graph (graph/adjacency-matrix edges)
         dist (graph/floyd-warshall graph)
         score (initial-score graph)]
     (loop [score score fs fraudulents]
@@ -2905,7 +2905,7 @@ net.brehaut.ClojureTools = (function (SH) {
        (reverse)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph" name="challenge.graph"><h1 class="project-name">challenge.graph</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns challenge.graph
   (:require [clojure.string :as string]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def max-dist 1e10M)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def max-dist Double/POSITIVE_INFINITY)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn- lines [content]
   (string/split content #&quot;\n&quot;))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn- read-file [file-name]
@@ -2918,11 +2918,11 @@ net.brehaut.ClojureTools = (function (SH) {
   (map parse-edge (read-file file-name)))</pre></td></tr><tr><td class="docs"><p>Return the set of vertices defined by edges.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn vertices
   [edges]
-  (sort (set (apply concat edges))))</pre></td></tr><tr><td class="docs"><p>Creates an adjacency matrix given the edges of the graph.
+  (sort (set (apply concat edges))))</pre></td></tr><tr><td class="docs"><p>Return the adjacency matrix given the edges of the graph.
    Some assumptions: - the graph is undirected.
                      - the ids are compact, i.e without holes.
                      - first id is zero and last id is (dec (count (vertices)))</p>
-</td><td class="codes"><pre class="brush: clojure">(defn create-adjacency-matrix
+</td><td class="codes"><pre class="brush: clojure">(defn adjacency-matrix
   [edges]
   (let [neighbors (sort (group-by first edges))
         empty-row (vec (repeat (count (vertices edges))
@@ -2952,7 +2952,7 @@ net.brehaut.ClojureTools = (function (SH) {
    Return a seq with the closeness of every vertex in the graph.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn closeness-centrality
   [dist]  
-  (map #(/ (apply + %1)) dist))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.server" name="challenge.server"><h1 class="project-name">challenge.server</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+  (map #(/ 1. (apply + %1)) dist))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.server" name="challenge.server"><h1 class="project-name">challenge.server</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns challenge.server
   (:gen-class) ; for -main method in uberjar
   (:require [io.pedestal.http :as server]
