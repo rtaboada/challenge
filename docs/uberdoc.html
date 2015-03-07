@@ -2866,7 +2866,7 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>challenge -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name"><a href="http://example.com/FIXME">challenge</a></h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Programming Challenge</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/test.check</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">io.pedestal/pedestal.service</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr><tr><td class="dep-name">io.pedestal/pedestal.jetty</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#challenge.core">challenge.core</a></li><li><a href="#challenge.graph">challenge.graph</a></li><li><a href="#challenge.server">challenge.server</a></li><li><a href="#challenge.service">challenge.service</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.core" name="challenge.core"><h1 class="project-name">challenge.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.6.0</td></tr><tr><td class="dep-name">org.clojure/test.check</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">io.pedestal/pedestal.service</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr><tr><td class="dep-name">io.pedestal/pedestal.jetty</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#challenge.core">challenge.core</a></li><li><a href="#challenge.graph">challenge.graph</a></li><li><a href="#challenge.server">challenge.server</a></li><li><a href="#challenge.service">challenge.service</a></li><li><a href="#challenge.core-test">challenge.core-test</a></li><li><a href="#challenge.graph-generators">challenge.graph-generators</a></li><li><a href="#challenge.graph-generators-test">challenge.graph-generators-test</a></li><li><a href="#challenge.graph-test">challenge.graph-test</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.core" name="challenge.core"><h1 class="project-name">challenge.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns challenge.core
   (:require [clojure.string :as string]
             [clojure.set :as set]
@@ -2904,24 +2904,30 @@ net.brehaut.ClojureTools = (function (SH) {
        (sort-by second)
        (reverse)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph" name="challenge.graph"><h1 class="project-name">challenge.graph</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns challenge.graph
-  (:require [clojure.string :as string]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def max-dist Double/POSITIVE_INFINITY)</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn- lines [content]
-  (string/split content #&quot;\n&quot;))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn- read-file [file-name]
+  (:require [clojure.string :as string]))</pre></td></tr><tr><td class="docs"><p>Maximum distance possible in a graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(def max-dist Double/POSITIVE_INFINITY)</pre></td></tr><tr><td class="docs"><p>Split lines from the content.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn- lines 
+  [content]
+  (string/split content #&quot;\n&quot;))</pre></td></tr><tr><td class="docs"><p>Auxiliary function for read-edge-file.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn- read-file 
+  [file-name]
   (map #(string/split %1 #&quot; &quot;)
-       (lines (slurp file-name))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn- parse-edge [[v1 v2]]
-  [(Integer/parseInt v1) (Integer/parseInt v2)])</pre></td></tr><tr><td class="docs"><p>Reads an edge file from disk. </p>
+       (lines (slurp file-name))))</pre></td></tr><tr><td class="docs"><p>Reads an edge file from disk. Expects the vertices id to be an Integer.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn read-edge-file
   [file-name]
-  (map parse-edge (read-file file-name)))</pre></td></tr><tr><td class="docs"><p>Return the set of vertices defined by edges.</p>
+  (map (fn [[v1 v2]]
+         [(Integer/parseInt v1) (Integer/parseInt v2)]) 
+       (read-file file-name)))</pre></td></tr><tr><td class="docs"><p>Return the set of vertices defined by edges.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn vertices
   [edges]
   (sort (set (apply concat edges))))</pre></td></tr><tr><td class="docs"><p>Return the adjacency matrix given the edges of the graph.
-   Some assumptions: - the graph is undirected.
-                     - the ids are compact, i.e without holes.
-                     - first id is zero and last id is (dec (count (vertices)))</p>
+   Some assumptions:  </p>
+
+<ol>
+<li>the graph is undirected.</li>
+<li>the ids are compact, i.e without holes.</li>
+<li>first id is zero and last id is <code>(dec (count (vertices edges)))</code></li>
+</ol>
 </td><td class="codes"><pre class="brush: clojure">(defn adjacency-matrix
   [edges]
   (let [neighbors (sort (group-by first edges))
@@ -2934,7 +2940,7 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(def ^:private shortest-path
   (memoize
    (fn [g i j k]
-     (if (= i j)
+     (if (= i j) ; same vertex, distance should be zero.
        0
        (if (neg? k)
          (get-in g [i j])
@@ -3076,7 +3082,256 @@ configure</p>
               ;; Either :jetty, :immutant or :tomcat (see comments in project.clj)
               ::bootstrap/type :jetty
               ;;::bootstrap/host &quot;localhost&quot;
-              ::bootstrap/port 8080})</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_challenge.core">challenge.core</li><li class="floating-toc-li" id="floating-toc_challenge.graph">challenge.graph</li><li class="floating-toc-li" id="floating-toc_challenge.server">challenge.server</li><li class="floating-toc-li" id="floating-toc_challenge.service">challenge.service</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+              ::bootstrap/port 8080})</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.core-test" name="challenge.core-test"><h1 class="project-name">challenge.core-test</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns challenge.core-test
+  (:require [clojure.test :refer :all]
+            [clojure.test.check.clojure-test :refer [defspec]]
+            [clojure.test.check.generators :as gen]
+            [clojure.test.check.properties :as prop]
+            [challenge.core :refer :all]
+            [challenge.graph :as graph]
+            [challenge.graph-generators :as graph-gen]
+            [challenge.graph-test :as graph-test]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(deftest calculate-score-equals-initial-score-when-fraudulent-is-empty
+  (testing &quot;Small graph.&quot;
+    (let [edges [[0 1] [0 2] [1 0] [1 3] [2 0] [3 1]]]
+      (is (= (calculate-score edges [])
+             (initial-score (graph/adjacency-matrix edges))))))
+  (testing &quot;File graph.&quot;
+    (let [edges (graph/read-edge-file &quot;edges&quot;)]
+      (is (= (calculate-score edges [])
+             (initial-score (graph/adjacency-matrix edges)))))))</pre></td></tr><tr><td class="docs"><p>Checks if initial-score is equals to the score calculated by 
+calculate-score, when no vertex is flagged as fraudulent.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec calculate-score-equals-initial-score-if-fraudulent-is-empty
+  50
+  (prop/for-all 
+   [edges graph-gen/graph]
+   (= (calculate-score edges [])
+      (initial-score (graph/adjacency-matrix edges)))))</pre></td></tr><tr><td class="docs"><p>Checks if initial-score is different of the score returned by
+calculate-score, when some vertex is flagged as fraudulent.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec calculate-score-should-change-initial-score-when-fraudulent-is-not-empty
+  50
+  (prop/for-all
+   [fvertex-and-edges (gen/bind graph-gen/num-vertex 
+                                 (fn [n] 
+                                   (gen/tuple (gen/choose 0 (dec n)) 
+                                              (gen/return (graph-gen/complete-graph-fn n)))))]
+   (let [[flagged-vertex edges] fvertex-and-edges]
+     (not= (calculate-score edges [flagged-vertex])
+           (initial-score (graph/adjacency-matrix edges))))))</pre></td></tr><tr><td class="docs"><p>Simple test that checks some values return by challenge.core/factor.</p>
+</td><td class="codes"><pre class="brush: clojure">(deftest factor-returns-correct-value
+  (is (= (factor 1) 0.5) &quot;Factor of 1 (immediate neighbors) should be 1/2&quot;)
+  (is (= (factor 2) 0.75))
+  (is (= (factor 3) 0.875))
+  (is (= (factor 10) 0.9990234375)))</pre></td></tr><tr><td class="docs"><p>Returns <code>true</code> if coll is in <em>non-descending</em> order.</p>
+</td><td class="codes"><pre class="brush: clojure">(def ascending? (partial graph-test/ordered-coll &lt;=))</pre></td></tr><tr><td class="docs"><p>Checks if factor keeps the invariant of always returning 
+a bigger scaling factor when the distance <code>k</code> increases.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec factor-scaling-is-ascending
+  (prop/for-all 
+   [v (gen/vector gen/pos-int)]
+   (let [ks (sort v)]
+     (ascending? (map factor ks)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph-generators" name="challenge.graph-generators"><h1 class="project-name">challenge.graph-generators</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns challenge.graph-generators
+  (:require [clojure.test.check.generators :as gen]))</pre></td></tr><tr><td class="docs"><h2>Helpers</h2>
+
+<p>Functions that generate a seq of edges on a graph with certain layout.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Return a seq with the edges of a complete graph with n vertices.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn complete-graph-fn
+  [n]
+  (for [x (range n) y (range n) :when (not= x y)]
+    [x y]))</pre></td></tr><tr><td class="docs"><p>Creates an undirected edge.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn- create-undirected-edge
+  [v1 v2]
+  [[v1 v2] [v2 v1]])</pre></td></tr><tr><td class="docs"><p>Creates a line graph with n vertices.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn line-graph-fn
+  [n]
+  (mapcat create-undirected-edge (range n) (range 1 n)))</pre></td></tr><tr><td class="docs"><p>Creates a ring graph with n vertices.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn ring-graph-fn
+  [n]
+  (concat (line-graph-fn n)
+          (create-undirected-edge (dec n) 0)))</pre></td></tr><tr><td class="docs"><p>Creates a star graph with n vertices.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn star-graph-fn
+  [n]
+  (mapcat create-undirected-edge (repeat 0) (range 1 n)))</pre></td></tr><tr><td class="docs"><h2>Generators</h2>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Generator for the number of vertices of a graph. 
+Always greater than 1.</p>
+</td><td class="codes"><pre class="brush: clojure">(def num-vertex (gen/such-that #(&gt; % 1) gen/pos-int))</pre></td></tr><tr><td class="docs"><p>Generator for a complete graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(def complete-graph (gen/fmap complete-graph-fn num-vertex))</pre></td></tr><tr><td class="docs"><p>Generator for a line graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(def line-graph (gen/fmap line-graph-fn num-vertex))</pre></td></tr><tr><td class="docs"><p>Generator for a ring graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(def ring-graph (gen/fmap ring-graph-fn num-vertex))</pre></td></tr><tr><td class="docs"><p>Generator for a star graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(def star-graph (gen/fmap star-graph-fn num-vertex))</pre></td></tr><tr><td class="docs"><p>Generator that chooses one of the graph layouts:</p>
+
+<ul>
+<li>Complete</li>
+<li>Line</li>
+<li>Ring</li>
+<li>Star</li>
+</ul>
+</td><td class="codes"><pre class="brush: clojure">(def graph (gen/one-of [complete-graph line-graph ring-graph star-graph]))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph-generators-test" name="challenge.graph-generators-test"><h1 class="project-name">challenge.graph-generators-test</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns challenge.graph-generators-test
+  (:require [clojure.test :refer :all]
+            [clojure.test.check.clojure-test :refer [defspec]]
+            [clojure.test.check.properties :as prop]
+            [challenge.graph :refer [vertices]]
+            [challenge.graph-generators :refer :all]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(deftest line-graph-test
+  (testing &quot;Line graph with 5 vertices&quot;
+    (let [graph (line-graph-fn 5)]
+      (is (= graph
+             [[0 1] [1 0] [1 2] [2 1] [2 3] [3 2] [3 4] [4 3]]))
+      (is (= (count (vertices graph)) 5)))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(deftest ring-graph-generation-test
+  (testing &quot;Ring graph with 9 vertices.&quot;
+    (let [graph (ring-graph-fn 9)]
+      (is (= graph
+             [[0 1] [1 0] [1 2] [2 1] [2 3] [3 2] [3 4] [4 3] [4 5] [5 4] [5 6] [6 5] [6 7] [7 6] [7 8] [8 7] [8 0] [0 8]]))
+      (is (= (count (vertices graph)) 9)))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(deftest star-graph-generation-test
+  (testing &quot;Star graph with 8 vertices&quot; 
+    (let [graph (star-graph-fn 8)]
+      (is (= graph
+             [[0 1] [1 0] [0 2] [2 0] [0 3] [3 0] [0 4] [4 0] [0 5] [5 0] [0 6] [6 0] [0 7] [7 0]]))
+      (is (= (count (vertices graph)) 8)))))</pre></td></tr><tr><td class="docs"><p>Check if the number of edges is the expected for a complete graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec number-edges-complete-graph
+  (prop/for-all
+   [n num-vertex]
+   (let [edges (complete-graph-fn n)]
+     ;; Number of edges should be n*(n-1)/2 in a complete graph. 
+     ;; But because of the way we represent the edges, they are counted twice.
+     (= (* n (dec n)) (count edges)))))</pre></td></tr><tr><td class="docs"><p>Check if the number of vertices is the one expected for a complete graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec number-vertices-in-complete-graph-is-n
+  (prop/for-all 
+   [n num-vertex]
+   (= n (count (vertices (complete-graph-fn n))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph-test" name="challenge.graph-test"><h1 class="project-name">challenge.graph-test</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns challenge.graph-test
+  (:require [clojure.test :refer :all]
+            [clojure.test.check.clojure-test :refer [defspec]]
+            [clojure.test.check.generators :as gen]
+            [clojure.test.check.properties :as prop]
+            [challenge.graph-generators :as gen-graph]
+            [challenge.graph :refer :all]))</pre></td></tr><tr><td class="docs"><h2>Utilities</h2>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Checks if every item in the collection is equal.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn equal-items? 
+  [coll]
+  (every? #(= (first coll) %1) coll))</pre></td></tr><tr><td class="docs"><p>Returns true if the <code>cmp-fn</code> returns true for every comparison.
+  The comparison function is called for every pair in a sliding window of size 2.
+  For example with <code>(ordered-coll [1 3 5 7] &lt;)</code> the <code>cmp-fn</code> would be called with the
+  following arguments: <code>[1 3] [3 5] [5 7]</code>.</p>
+
+<p>  Use this function to verify if a collection is:  </p>
+
+<ul>
+<li>Strictly increasing (passing &lt; as <code>cmp-fn</code>)</li>
+<li>Strictly decreasing (with >)</li>
+<li>Non-increasing (with &lt;=)</li>
+<li>Non-decreasing (with >=)</li>
+</ul>
+</td><td class="codes"><pre class="brush: clojure">(defn ordered-coll 
+  [cmp-fn coll]
+  (every? (fn [[a b]] (cmp-fn a b))
+          (partition 2 1 coll)))</pre></td></tr><tr><td class="docs"><h2>Tests</h2>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Test if the size of the adjacency matrix is correct, based on number of vertices.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec size-adjacency-matrix
+  (prop/for-all
+   [edges gen-graph/graph]
+   (let [graph (adjacency-matrix edges)
+         n (count (vertices edges))]
+     ;; Size of adjacency matrix should be equal to n.
+     (and (= n (count graph))
+          (every? #(= n (count %1))
+                  graph)))))</pre></td></tr><tr><td class="docs"><p>Test if the <em>shortest path algorithm</em> performs correctly in a complete graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec max-distance-complete-graph
+  50
+  (prop/for-all 
+   [edges gen-graph/complete-graph]
+   (let [dist (floyd-warshall (adjacency-matrix edges))]      
+     ;; Max distance should be equal to 1 in a complete graph.            
+     (= 1 (apply max 
+                 (map #(apply max %1) dist))))))</pre></td></tr><tr><td class="docs"><p>Test if <strong>closeness</strong> is calculated correctly in a complete graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec closeness-complete-graph
+  50
+  (prop/for-all 
+   [edges gen-graph/complete-graph]
+   (let [graph (adjacency-matrix edges)
+         closeness (closeness-centrality (floyd-warshall graph))]
+     ;; Every vertex should have the same **closeness** in a complete graph.
+     (equal-items? closeness))))</pre></td></tr><tr><td class="docs"><p>Test if the value calculated for <strong>closeness</strong> is correct for a complete graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec closeness-value-complete-graph
+  50
+  (prop/for-all
+   [edges gen-graph/complete-graph]
+   (let [n (count (vertices edges))
+         graph (adjacency-matrix edges)
+         closeness (closeness-centrality (floyd-warshall graph))]
+     ;; The value of closeness should be 1/(n-1) in a complete graph.
+     (= (first closeness) (/ 1. (dec n))))))</pre></td></tr><tr><td class="docs"><p><strong>Closeness</strong> should be equal for all vertices in a ring graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec closeness-ring-graph
+  50
+  (prop/for-all
+   [edges gen-graph/ring-graph]
+   (let [graph (adjacency-matrix edges)
+         closeness (closeness-centrality (floyd-warshall graph))]
+     (equal-items? closeness))))</pre></td></tr><tr><td class="docs"><p>Closed formula that calculates the <strong>closeness</strong> value in a ring graph of <code>n</code> vertices.
+   The key insight is that every vertex in the ring graph as a distance vector of the form:
+   <code>[0 1..n/2 n/2..1]</code> if <code>n</code> is odd and <code>[0 1..(n/2 - 1) n/2 (n/2 - 1)..1]</code> if <code>n</code> is even.
+   The sum of a sequence <code>1..n</code> is equal to <code>n * (n+1) / 2</code>, but we have two sequences 
+   and so the formula simplifies to: <code>n * (n+1)</code></p>
+</td><td class="codes"><pre class="brush: clojure">(defn closeness-value-ring-graph
+  [n]
+  (let [half-n (Math/floor (/ n 2))
+        farness (if (even? n)
+                  (+ half-n ; The lonely `n/2` in the even distance vector
+                     (* (dec half-n) half-n)) ; 2 times the sequence 1..(n-1)
+                  (* half-n (inc half-n)))] ; 2 times the sequence 1..n
+    (/ farness)))</pre></td></tr><tr><td class="docs"><p>Checks if the <strong>closeness</strong> calculated on a ring graph is the same 
+as the <strong>closeness</strong> calculated by the closed formula.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec closeness-ring-graph-value-is-correct
+  50
+  (prop/for-all
+   [edges gen-graph/ring-graph]
+   (let [graph (adjacency-matrix edges)]
+     (= (closeness-value-ring-graph (count (vertices edges)))
+        (first (closeness-centrality (floyd-warshall graph)))))))</pre></td></tr><tr><td class="docs"><p>Checks that every outer vertex has the same <strong>closeness</strong> and 
+that the center vertex has the highest <strong>closeness</strong> when <code>n &gt; 2</code>, 
+and the same <strong>closeness</strong> when the star graph degenerates to 
+a line graph with two vertices.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec closeness-star-graph-properties
+  50
+  (prop/for-all
+   [edges gen-graph/star-graph]
+   (let [closeness (-&gt; edges
+                       adjacency-matrix
+                       floyd-warshall
+                       closeness-centrality)]
+     (and (equal-items? (rest closeness))
+          (if (&gt; (count closeness) 2) 
+            (&gt; (first closeness) (second closeness)) ; star graph with 3 or more vertices.
+            (= (first closeness) (second closeness))))))) ; line graph with 2 vertices.</pre></td></tr><tr><td class="docs"><p>Checks that the center vertex has the highest 
+<strong>closeness</strong> in a line graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec closeness-line-graph-properties
+  50
+  (prop/for-all
+   [edges gen-graph/line-graph]
+   (let [closeness (-&gt; edges
+                       adjacency-matrix
+                       floyd-warshall
+                       closeness-centrality)]
+     (= (apply max closeness)
+        (nth closeness (/ (count closeness) 2))))))</pre></td></tr><tr><td class="docs"><p>Checks that in the outer vertex of the graph the distance vector is 
+strictly crescent or decrescent and that they the same when ordered. </p>
+</td><td class="codes"><pre class="brush: clojure">(defspec distance-vector-line-graph-properties
+  50
+  (prop/for-all
+   [edges gen-graph/line-graph]
+   (let [distance (-&gt; edges
+                      adjacency-matrix
+                      floyd-warshall)
+         first-dist-vector (first distance)
+         last-dist-vector (last distance)]
+     (and (ordered-coll &lt; first-dist-vector)
+          (ordered-coll &gt; last-dist-vector)
+          (= (sort first-dist-vector)
+             (sort last-dist-vector))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_challenge.core">challenge.core</li><li class="floating-toc-li" id="floating-toc_challenge.graph">challenge.graph</li><li class="floating-toc-li" id="floating-toc_challenge.server">challenge.server</li><li class="floating-toc-li" id="floating-toc_challenge.service">challenge.service</li><li class="floating-toc-li" id="floating-toc_challenge.core-test">challenge.core-test</li><li class="floating-toc-li" id="floating-toc_challenge.graph-generators">challenge.graph-generators</li><li class="floating-toc-li" id="floating-toc_challenge.graph-generators-test">challenge.graph-generators-test</li><li class="floating-toc-li" id="floating-toc_challenge.graph-test">challenge.graph-test</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
 SyntaxHighlighter.all();
 
 // hackity hack
