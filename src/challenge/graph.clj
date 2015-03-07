@@ -2,25 +2,29 @@
   (:require [clojure.string :as string]))
 
 
+;; Maximum distance possible in a graph.
 (def max-dist Double/POSITIVE_INFINITY)
 
-(defn- lines [content]
+
+(defn- lines 
+  "Split lines from the content."
+  [content]
   (string/split content #"\n"))
 
 
-(defn- read-file [file-name]
+(defn- read-file 
+  "Auxiliary function for read-edge-file."
+  [file-name]
   (map #(string/split %1 #" ")
        (lines (slurp file-name))))
 
 
-(defn- parse-edge [[v1 v2]]
-  [(Integer/parseInt v1) (Integer/parseInt v2)])
-
-
 (defn read-edge-file
-  "Reads an edge file from disk. "
+  "Reads an edge file from disk. Expects the vertices id to be an Integer."
   [file-name]
-  (map parse-edge (read-file file-name)))
+  (map (fn [[v1 v2]]
+         [(Integer/parseInt v1) (Integer/parseInt v2)]) 
+       (read-file file-name)))
 
 
 (defn vertices
@@ -31,9 +35,11 @@
 
 (defn adjacency-matrix
   "Return the adjacency matrix given the edges of the graph.
-   Some assumptions: - the graph is undirected.
-                     - the ids are compact, i.e without holes.
-                     - first id is zero and last id is (dec (count (vertices)))"
+   Some assumptions:  
+
+   1. the graph is undirected.
+   2. the ids are compact, i.e without holes.
+   3. first id is zero and last id is `(dec (count (vertices edges)))`"
   [edges]
   (let [neighbors (sort (group-by first edges))
         empty-row (vec (repeat (count (vertices edges))
@@ -46,7 +52,7 @@
 (def ^:private shortest-path
   (memoize
    (fn [g i j k]
-     (if (= i j)
+     (if (= i j) ; same vertex, distance should be zero.
        0
        (if (neg? k)
          (get-in g [i j])
