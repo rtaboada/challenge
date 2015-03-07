@@ -48,7 +48,7 @@
 (defspec number-edges-complete-graph
   (prop/for-all
    [n (int-greater-1)]
-   (let [edges (complete-graph-edges n)]
+   (let [edges (complete-graph n)]
      ;; Number of edges should be n*(n-1)/2 in a complete graph. 
      ;; But because of the way we represent the edges, they are counted twice.
      (= (* n (dec n)) (count edges)))))
@@ -75,6 +75,11 @@
      (= 1 (apply max (map #(apply max %1) dist))))))
 
 
+(defn equal-items? 
+  "Checks if every item in the collection is equal."
+  [coll]
+  (every? #(= (first coll) %1) coll))
+
 ;; Test if closeness is calculated correctly in a complete graph.
 (defspec closeness-complete-graph
   50
@@ -83,7 +88,7 @@
    (let [graph (adjacency-matrix (complete-graph n))
          closeness (closeness-centrality (floyd-warshall graph))]
      ;; Every vertex should have the same closeness in a complete graph.
-     (every? #(= (first closeness) %1) closeness))))
+     (equal-items? closeness))))
 
 
 ;; Test if the value calculated for closeness is correct for a complete graph.
@@ -95,3 +100,31 @@
          closeness (closeness-centrality (floyd-warshall graph))]
      ;; The value of closeness should be 1/(n-1) in a complete graph.
      (= (first closeness) (/ 1. (dec n))))))
+
+
+;; Closeness should be equal in a ring graph.
+(defspec closeness-ring-graph
+  50
+  (prop/for-all
+   [n (int-greater-1)]
+   (let [graph (adjacency-matrix (ring-graph n))
+         closeness (closeness-centrality (floyd-warshall graph))]
+     (equal-items? closeness))))
+
+
+(defn closeness-value-ring-graph
+  "Formula that calculates the closeness value in a ring graph of n vertices.
+   The key insight is that every vertex in the ring graph as a distance vector of the form:
+   [0 1..n n..1] if n is odd and [0 1..(n-1) n (n-1)..1] if n is even."
+  [n]
+  (let [half-n (Math/floor (/ n 2))
+        factor (if (even? n) half-n 0)]
+    (/ (- (* half-n (inc half-n)) factor))))
+
+(defspec closeness-ring-graph-value-is-correct
+  50
+  (prop/for-all
+   [n (int-greater-1)]
+   (let [graph (adjacency-matrix (ring-graph n))]
+     (= (closeness-value-ring-graph n)
+        (first (closeness-centrality (floyd-warshall graph)))))))
