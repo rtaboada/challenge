@@ -5,6 +5,7 @@
             [clojure.test.check.properties :as prop]
             [challenge.core :refer :all]
             [challenge.graph :as graph]
+            [challenge.graph-generators :as graph-gen]
             [challenge.graph-test :as graph-test]))
 
 
@@ -19,16 +20,12 @@
              (initial-score (graph/adjacency-matrix edges)))))))
 
 
-;; Generator for the number of vertices of a graph.
-(def num-vertex (graph-test/int-greater-1))
-
-
 ;; Checks if initial-score is equals to the score calculated by 
 ;; calculate-score, when no vertex is flagged as fraudulent.
 (defspec calculate-score-equals-initial-score-if-fraudulent-is-empty
   50
   (prop/for-all 
-   [edges (gen/fmap graph-test/complete-graph-edges num-vertex)]
+   [edges graph-gen/graph]
    (= (calculate-score edges [])
       (initial-score (graph/adjacency-matrix edges)))))
 
@@ -38,10 +35,10 @@
 (defspec calculate-score-should-change-initial-score-when-fraudulent-is-not-empty
   50
   (prop/for-all
-   [fvertex-and-edges (gen/bind num-vertex 
+   [fvertex-and-edges (gen/bind graph-gen/num-vertex 
                                  (fn [n] 
                                    (gen/tuple (gen/choose 0 (dec n)) 
-                                              (gen/return (graph-test/complete-graph-edges n)))))]
+                                              (gen/return (graph-gen/complete-graph-fn n)))))]
    (let [[flagged-vertex edges] fvertex-and-edges]
      (not= (calculate-score edges [flagged-vertex])
            (initial-score (graph/adjacency-matrix edges))))))
@@ -55,12 +52,12 @@
   (is (= (factor 10) 0.9990234375)))
 
 
-;; Returns true if coll is in non-descending order.
+;; Returns `true` if coll is in _non-descending_ order.
 (def ascending? (partial graph-test/ordered-coll <=))
 
 
 ;; Checks if factor keeps the invariant of always returning 
-;; a bigger scaling factor when the distance k increases.
+;; a bigger scaling factor when the distance `k` increases.
 (defspec factor-scaling-is-ascending
   (prop/for-all 
    [v (gen/vector gen/pos-int)]
