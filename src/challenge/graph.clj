@@ -1,4 +1,5 @@
 (ns challenge.graph
+  "Provides graph related functions."
   (:require [clojure.string :as string]))
 
 
@@ -34,7 +35,7 @@
 
 
 (defn adjacency-matrix
-  "Return the adjacency matrix given the edges of the graph.
+  "Return the _adjacency matrix_ given the edges of the graph.
    Some assumptions:  
 
    1. the graph is undirected.
@@ -55,7 +56,7 @@
      (if (= i j) ; same vertex, distance should be zero.
        0
        (if (neg? k)
-         (get-in g [i j])
+         (get-in g [i j]) ; base case, going from i to j in one hop.
          (min (shortest-path g i j (dec k))
               (+ (shortest-path g i k (dec k))
                  (shortest-path g k j (dec k)))))))))
@@ -64,17 +65,17 @@
 (defn floyd-warshall
   "All pairs shortest path distance graph algorithm,
    returns a distance matrix where the line and columns represent
-   the same vertices as the adjacency matrix."
+   the same vertices as the _adjacency matrix_."
   [g]
   (let [v (count g)]
-    (partition v v
+    (partition v v 
                (for [x (range 0 v) y (range 0 v)]
                  (shortest-path g x y (dec v))))))
 
 
 (defn closeness-centrality
-  "Returns the closeness of every vertex in the graph, dist is a distance matrix.
-   Return a seq with the closeness of every vertex in the graph."
+  "Returns the **closeness** of every vertex in the graph, dist is the distance matrix.
+   Return a `seq` with the **closeness** of every vertex in the graph."
   [dist]  
   (map #(/ 1. (apply + %1)) dist))
 

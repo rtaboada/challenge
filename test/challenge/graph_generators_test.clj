@@ -39,10 +39,9 @@
 (defspec number-edges-complete-graph
   (prop/for-all
    [n num-vertex]
-   (let [edges (complete-graph-fn n)]
-     ;; Number of edges should be `n * (n - 1) / 2` in a complete graph. 
-     ;; But because of the way we represent the edges, they are counted twice.
-     (= (* n (dec n)) (count edges)))))
+   ;; Number of edges should be `n * (n - 1) / 2` in a complete graph. 
+   ;; But because of the way we represent the edges, they are counted twice.
+   (= (* n (dec n)) (count (complete-graph-fn n)))))
 
 
 ;; Checks if the number of vertices is the one expected for a complete graph.
@@ -56,12 +55,11 @@
 (defspec number-edges-line-graph
   (prop/for-all
    [n num-vertex]
-   (let [edges (line-graph-fn n)]
-     ;; Number of edges for a line graph is `n - 1`.
-     ;; But because of the way we represent undirected edges, the
-     ;; number should be twice that.
-     (= (* 2 (dec n))
-        (count edges)))))
+   ;; Number of edges for a line graph is `n - 1`.
+   ;; But because of the way we represent undirected edges, the
+   ;; number should be twice that.
+   (= (* 2 (dec n))
+      (count (line-graph-fn n)))))
 
 
 ;; Checks if the number of generated edges is correct for a ring graph.

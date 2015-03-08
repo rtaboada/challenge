@@ -90,6 +90,7 @@
         (ring-resp/status 204))))
 
 
+;; Routes of the service.
 (defroutes routes
   [[["/" 
      ;; Set default interceptors for any path under /    
