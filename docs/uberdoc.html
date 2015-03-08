@@ -3097,7 +3097,8 @@ configure</p>
             [challenge.core :refer :all]
             [challenge.graph :as graph]
             [challenge.graph-generators :as graph-gen]
-            [challenge.graph-test :as graph-test]))</pre></td></tr><tr><td class="docs">
+            [challenge.graph-test :as graph-test]))</pre></td></tr><tr><td class="docs"><h2>`initial-score` and `calculate-score` tests</h2>
+</td><td class="codes"></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(deftest calculate-score-equals-initial-score-when-fraudulent-is-empty
   (testing &quot;Small graph.&quot;
     (let [edges [[0 1] [0 2] [1 0] [1 3] [2 0] [3 1]]]
@@ -3106,39 +3107,56 @@ configure</p>
   (testing &quot;File graph.&quot;
     (let [edges (graph/read-edge-file &quot;edges&quot;)]
       (is (= (calculate-score edges [])
-             (initial-score (graph/adjacency-matrix edges)))))))</pre></td></tr><tr><td class="docs"><p>Checks if initial-score is equals to the score calculated by 
-calculate-score, when no vertex is flagged as fraudulent.</p>
+             (initial-score (graph/adjacency-matrix edges)))))))</pre></td></tr><tr><td class="docs"><p>Checks if <code>initial-score</code> is equals to the score calculated by 
+<code>calculate-score</code>, when no vertex is flagged as fraudulent.</p>
 </td><td class="codes"><pre class="brush: clojure">(defspec calculate-score-equals-initial-score-if-fraudulent-is-empty
   50
   (prop/for-all 
    [edges graph-gen/graph]
    (= (calculate-score edges [])
-      (initial-score (graph/adjacency-matrix edges)))))</pre></td></tr><tr><td class="docs"><p>Checks if initial-score is different of the score returned by
-calculate-score, when some vertex is flagged as fraudulent.</p>
-</td><td class="codes"><pre class="brush: clojure">(defspec calculate-score-should-change-initial-score-when-fraudulent-is-not-empty
+      (initial-score (graph/adjacency-matrix edges)))))</pre></td></tr><tr><td class="docs"><p>Checks if <code>initial-score</code> is different of the score returned by
+<code>calculate-score</code>, when some vertex is flagged as <em>fraudulent</em>.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec calculate-score-not=-initial-score-when-fraudulent-not-empty
   50
   (prop/for-all
-   [fvertex-and-edges (gen/bind graph-gen/num-vertex 
-                                 (fn [n] 
-                                   (gen/tuple (gen/choose 0 (dec n)) 
-                                              (gen/return (graph-gen/complete-graph-fn n)))))]
-   (let [[flagged-vertex edges] fvertex-and-edges]
-     (not= (calculate-score edges [flagged-vertex])
-           (initial-score (graph/adjacency-matrix edges))))))</pre></td></tr><tr><td class="docs"><p>Simple test that checks some values return by challenge.core/factor.</p>
+   [edges-fs graph-gen/graph-and-fraudulents]
+   (let [[edges fraudulents] edges-fs]
+     (not= (calculate-score edges fraudulents)
+           (initial-score (graph/adjacency-matrix edges))))))</pre></td></tr><tr><td class="docs"><p>Checks if the <code>calculate-score</code> function returns the expected
+score when the center vertex is flagged as <em>fraudulent</em> in a <em>star</em> graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec star-graph-with-fraudulent-center
+  50
+  (prop/for-all
+   [edges graph-gen/star-graph]
+   (let [old-score (calculate-score edges [])
+         new-score (calculate-score edges [0])]
+     (and (= 0.0 (nth new-score 0)) ; score of center vertex is zero.
+          (every? identity (map #(= %1 (* 2 %2)) ; others vertex score is halved.
+                                 (rest old-score)
+                                 (rest new-score)))))))</pre></td></tr><tr><td class="docs"><p>Verify that every vertex flagged as <em>fraudulent</em> as a zero score.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec every-fraudulent-vertex-score-is-zero
+  50
+  (prop/for-all
+   [es-fs graph-gen/graph-and-fraudulents]
+   (let [[edges fraudulents] es-fs
+         score (calculate-score edges fraudulents)]
+     (every? zero?
+             (map #(nth score %1) fraudulents)))))</pre></td></tr><tr><td class="docs"><h2>`factor` tests</h2>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Simple test that checks some values return by <code>challenge.core/factor</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(deftest factor-returns-correct-value
   (is (= (factor 1) 0.5) &quot;Factor of 1 (immediate neighbors) should be 1/2&quot;)
   (is (= (factor 2) 0.75))
   (is (= (factor 3) 0.875))
-  (is (= (factor 10) 0.9990234375)))</pre></td></tr><tr><td class="docs"><p>Returns <code>true</code> if coll is in <em>non-descending</em> order.</p>
-</td><td class="codes"><pre class="brush: clojure">(def ascending? (partial graph-test/ordered-coll &lt;=))</pre></td></tr><tr><td class="docs"><p>Checks if factor keeps the invariant of always returning 
+  (is (= (factor 10) 0.9990234375)))</pre></td></tr><tr><td class="docs"><p>Checks if <code>factor</code> keeps the invariant of always returning 
 a bigger scaling factor when the distance <code>k</code> increases.</p>
 </td><td class="codes"><pre class="brush: clojure">(defspec factor-scaling-is-ascending
   (prop/for-all 
    [v (gen/vector gen/pos-int)]
    (let [ks (sort v)]
-     (ascending? (map factor ks)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph-generators" name="challenge.graph-generators"><h1 class="project-name">challenge.graph-generators</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+     (graph-test/ordered-coll &lt;= (map factor ks)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph-generators" name="challenge.graph-generators"><h1 class="project-name">challenge.graph-generators</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns challenge.graph-generators
-  (:require [clojure.test.check.generators :as gen]))</pre></td></tr><tr><td class="docs"><h2>Helpers</h2>
+  (:require [clojure.test.check.generators :as gen]
+            [challenge.graph :as graph]))</pre></td></tr><tr><td class="docs"><h2>Helpers</h2>
 
 <p>Functions that generate a seq of edges on a graph with certain layout.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Return a seq with the edges of a complete graph with n vertices.</p>
@@ -3161,7 +3179,13 @@ a bigger scaling factor when the distance <code>k</code> increases.</p>
   (mapcat create-undirected-edge (repeat 0) (range 1 n)))</pre></td></tr><tr><td class="docs"><h2>Generators</h2>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Generator for the number of vertices of a graph. 
 Always greater than 1.</p>
-</td><td class="codes"><pre class="brush: clojure">(def num-vertex (gen/such-that #(&gt; % 1) gen/pos-int))</pre></td></tr><tr><td class="docs"><p>Generator for a complete graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(def num-vertex (gen/such-that #(&gt; % 1) gen/pos-int))</pre></td></tr><tr><td class="docs"><p>Generates a set of vertices with ids in <code>(range 0 n)</code> </p>
+
+<p>Generator for a set of vertices in the graph.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn choose-vertices
+  [n]
+  (gen/fmap set
+            (gen/not-empty (gen/vector (gen/choose 0 (dec n))))))</pre></td></tr><tr><td class="docs"><p>Generator for a complete graph.</p>
 </td><td class="codes"><pre class="brush: clojure">(def complete-graph (gen/fmap complete-graph-fn num-vertex))</pre></td></tr><tr><td class="docs"><p>Generator for a line graph.</p>
 </td><td class="codes"><pre class="brush: clojure">(def line-graph (gen/fmap line-graph-fn num-vertex))</pre></td></tr><tr><td class="docs"><p>Generator for a ring graph.</p>
 </td><td class="codes"><pre class="brush: clojure">(def ring-graph (gen/fmap ring-graph-fn num-vertex))</pre></td></tr><tr><td class="docs"><p>Generator for a star graph.</p>
@@ -3173,7 +3197,13 @@ Always greater than 1.</p>
 <li>Ring</li>
 <li>Star</li>
 </ul>
-</td><td class="codes"><pre class="brush: clojure">(def graph (gen/one-of [complete-graph line-graph ring-graph star-graph]))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph-generators-test" name="challenge.graph-generators-test"><h1 class="project-name">challenge.graph-generators-test</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def graph (gen/one-of [complete-graph line-graph ring-graph star-graph]))</pre></td></tr><tr><td class="docs"><p>Generator of a graph and fraudulents vertices.
+Generates a tuple with the list of edges and a set of fraudulents vertices.</p>
+</td><td class="codes"><pre class="brush: clojure">(def graph-and-fraudulents
+  (gen/bind graph
+            (fn [edges]
+              (gen/tuple (gen/return edges)
+                         (choose-vertices (count (graph/vertices edges)))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#challenge.graph-generators-test" name="challenge.graph-generators-test"><h1 class="project-name">challenge.graph-generators-test</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns challenge.graph-generators-test
   (:require [clojure.test :refer :all]
             [clojure.test.check.clojure-test :refer [defspec]]
@@ -3198,7 +3228,7 @@ Always greater than 1.</p>
     (let [graph (star-graph-fn 8)]
       (is (= graph
              [[0 1] [1 0] [0 2] [2 0] [0 3] [3 0] [0 4] [4 0] [0 5] [5 0] [0 6] [6 0] [0 7] [7 0]]))
-      (is (= (count (vertices graph)) 8)))))</pre></td></tr><tr><td class="docs"><h2>Property base tests</h2>
+      (is (= (count (vertices graph)) 8)))))</pre></td></tr><tr><td class="docs"><h2>Property based tests</h2>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Check if the number of edges is the expected for a complete graph.</p>
 </td><td class="codes"><pre class="brush: clojure">(defspec number-edges-complete-graph
   (prop/for-all
