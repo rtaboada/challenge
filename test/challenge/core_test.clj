@@ -66,6 +66,16 @@
      (every? zero?
              (map #(nth score %1) fraudulents)))))
 
+;; Verify that score is non-increasing when fraudulents vertices is included.
+(defspec score-cant-increase-with-fraudulents-vertices
+  50
+  (prop/for-all
+   [es-fs graph-gen/graph-and-fraudulents]
+   (let [[edges fraudulents] es-fs
+         initial-score (calculate-score edges [])
+         current-score (calculate-score edges fraudulents)]
+     (every? identity (map >= initial-score current-score)))))
+
 
 ;; ## `factor` tests
 
