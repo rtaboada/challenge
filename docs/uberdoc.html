@@ -3141,7 +3141,15 @@ score when the center vertex is flagged as <em>fraudulent</em> in a <em>star</em
    (let [[edges fraudulents] es-fs
          score (calculate-score edges fraudulents)]
      (every? zero?
-             (map #(nth score %1) fraudulents)))))</pre></td></tr><tr><td class="docs"><h2>`factor` tests</h2>
+             (map #(nth score %1) fraudulents)))))</pre></td></tr><tr><td class="docs"><p>Verify that score is non-increasing when fraudulents vertices is included.</p>
+</td><td class="codes"><pre class="brush: clojure">(defspec score-cant-increase-with-fraudulents-vertices
+  50
+  (prop/for-all
+   [es-fs graph-gen/graph-and-fraudulents]
+   (let [[edges fraudulents] es-fs
+         initial-score (calculate-score edges [])
+         current-score (calculate-score edges fraudulents)]
+     (every? identity (map &gt;= initial-score current-score)))))</pre></td></tr><tr><td class="docs"><h2>`factor` tests</h2>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Simple test that checks some values return by <code>challenge.core/factor</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(deftest factor-returns-correct-value
   (is (= (factor 1) 0.5) &quot;Factor of 1 (immediate neighbors) should be 1/2&quot;)

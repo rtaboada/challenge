@@ -97,9 +97,9 @@
   [n]
   (let [half-n (Math/floor (/ n 2))
         farness (if (even? n)
-                  (+ half-n ; The lonely `n/2` in the even distance vector
-                     (* (dec half-n) half-n)) ; 2 times the sequence 1..(n-1)
-                  (* half-n (inc half-n)))] ; 2 times the sequence 1..n
+                  (+ half-n ; The lonely `n/2` in the even distance vector plus
+                     (* (dec half-n) half-n)) ; 2 times the sequence `1..(n-1)`
+                  (* half-n (inc half-n)))] ; 2 times the sequence `1..n`
     (/ farness)))
 
 
@@ -127,7 +127,7 @@
                        floyd-warshall
                        closeness-centrality)]
      (and (equal-items? (rest closeness))
-          (if (> (count closeness) 2) 
+          (if (> (count closeness) 2)
             (> (first closeness) (second closeness)) ; star graph with 3 or more vertices.
             (= (first closeness) (second closeness))))))) ; line graph with 2 vertices.
 
