@@ -5,7 +5,7 @@
             [challenge.graph :refer [vertices]]
             [challenge.graph-generators :refer :all]))
 
-;; ## Unit tests ##
+;; ## Unit tests
 
 ;; Checks if the line graph function is creating the spected edges.
 (deftest line-graph-test
@@ -33,7 +33,7 @@
              [[0 1] [1 0] [0 2] [2 0] [0 3] [3 0] [0 4] [4 0] [0 5] [5 0] [0 6] [6 0] [0 7] [7 0]]))
       (is (= (count (vertices graph)) 8)))))
 
-;; ## Property base tests ##
+;; ## Property based tests
 
 ;; Check if the number of edges is the expected for a complete graph.
 (defspec number-edges-complete-graph

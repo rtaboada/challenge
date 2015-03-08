@@ -1,7 +1,8 @@
 (ns challenge.graph-generators
-  (:require [clojure.test.check.generators :as gen]))
+  (:require [clojure.test.check.generators :as gen]
+            [challenge.graph :as graph]))
 
-;; ## Helpers ##
+;; ## Helpers
 ;; Functions that generate a seq of edges on a graph with certain layout.
 
  
@@ -37,11 +38,18 @@
   (mapcat create-undirected-edge (repeat 0) (range 1 n)))
 
 
-;; ## Generators ##
+;; ## Generators
 
 ;; Generator for the number of vertices of a graph. 
 ;; Always greater than 1.
 (def num-vertex (gen/such-that #(> % 1) gen/pos-int))
+
+;; Generator for a set of vertices in the graph.
+(defn choose-vertices
+  "Generates a set of vertices with ids in `(range 0 n)` "
+  [n]
+  (gen/fmap set
+            (gen/not-empty (gen/vector (gen/choose 0 (dec n))))))
 
 ;; Generator for a complete graph.
 (def complete-graph (gen/fmap complete-graph-fn num-vertex))
@@ -62,4 +70,12 @@
 ;; - Ring
 ;; - Star
 (def graph (gen/one-of [complete-graph line-graph ring-graph star-graph]))
+
+;; Generator of a graph and fraudulents vertices.
+;; Generates a tuple with the list of edges and a set of fraudulents vertices.
+(def graph-and-fraudulents
+  (gen/bind graph
+            (fn [edges]
+              (gen/tuple (gen/return edges)
+                         (choose-vertices (count (graph/vertices edges)))))))
 
