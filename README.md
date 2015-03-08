@@ -23,6 +23,7 @@ I keep the state of the application in two `atom`s, the edges `atom` keeps a `se
 
 - [Pedestal](https://github.com/pedestal/pedestal): Used to implement the [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer) web server
 - [test.check](https://github.com/clojure/test.check): Use to implement property based tests. There are two great presentations at Clojure/West 2014 about this kind of test [John Hughes - Testing the Hard Stuff and Staying Sane](https://www.youtube.com/watch?v=zi0rHwfiX1Q) and [Reid Draper - Powerful Testing with test.check](https://www.youtube.com/watch?v=JMhNINPo__g).
+- [Marginalia](https://github.com/gdeer81/marginalia): Used to generate documentation from comments in the source code.
 
 ## Usage
 
